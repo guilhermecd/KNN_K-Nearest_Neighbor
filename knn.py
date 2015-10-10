@@ -1,110 +1,119 @@
+"""    
+    Copyright (C) 2014, Guilherme Castro Diniz.
+    
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation (FSF); in version 2 of the
+    license.
+
+    This program is distributed in the hope that it can be useful,
+    but WITHOUT ANY IMPLIED WARRANTY OF ADEQUATION TO ANY
+    MARKET OR APPLICATION IN PARTICULAR. See the
+    GNU General Public License for more details.
+    <http://www.gnu.org/licenses/>
+"""
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""
-Created on Sun Jun  8 19:39:36 2014
-
-@author: Guilherme Castro Diniz
-guizao.seri@gmail.com
-"""
-
 import sys as arg
+import sys
 import numpy as np
 import scipy.spatial.distance as distance
 import time
 import collections
 
-def resultado(Classificacao):
-	acerto = 0
+def result(classification):
+	hits = 0
 		
-	for ClassificReal,ClassificKnn in Classificacao:
+	for ClassificReal,ClassificKnn in classification:
 		ClassificReal = int(ClassificReal)
 		ClassificKnn = int(ClassificKnn)
 		if ClassificReal == ClassificKnn:
-			acerto = acerto + 1
-	return acerto
+			hits = hits + 1
+	return hits
 
-
-def instancias(Arq):
-	_linhas = np.loadtxt(Arq, dtype=float, delimiter=" ")
-	_instancias = []
-	for linha in _linhas:
-		_instancias.append((linha[0], np.array(linha[1:])))
-	return _instancias
+def ReadArq(Arq):
+	_lines = np.loadtxt(Arq, dtype=float, delimiter=" ")
+	_instance = []
+	for line in _lines:
+		_instance.append((line[0], np.array(line[1:])))
+	return _instance
  
+		
+def classifier(_dist):
+	_class = []
+	for i,j in _dist:
+		_class.append(j)
+	QtdClasses = collections.Counter(_class) #Qtd de cada classe
+	return QtdClasses.most_common()[0][0] #Moda
 
-def Knn(treino,teste,k,tipo):
+def Distance(i,j,type):
+	if type == 1:
+		return distance.euclidean(i,j)
+	elif type == 2:
+		return distance.cityblock(i,j)
+	elif type == 3:
+        	return distance.cosine(i,j)  
+def Knn(training,test,k,type):
     _Classific = []
     aux = 0.0
     
-    for i,ii in teste:
-        _distancias = []
-        for j,jj in treino:
-                dist = Distancia(ii,jj,tipo)
-                if len(_distancias) == k:
-                    if (dist,j) < _distancias[k-1]:
-                        _distancias[k-1] = (dist,j)
+    for i,ii in test:
+        _distance = []
+        for j,jj in training:
+                dist = Distance(ii,jj,type)
+                if len(_distance) == k:
+                    if (dist,j) < _distance[k-1]:
+                        _distance[k-1] = (dist,j)
                         q = 2
-                        while (_distancias[k-q+1] < _distancias[k-q]):
-                            aux = _distancias[k-q+1]
-                            _distancias[k-q+1] = _distancias[k-q]
-                            _distancias[k-q] = aux
+                        while (_distance[k-q+1] < _distance[k-q]):
+                            aux = _distance[k-q+1]
+                            _distance[k-q+1] = _distance[k-q]
+                            _distance[k-q] = aux
                             q = q + 1
                             if q > k:
                                 break
                 else:
-                    _distancias.append((dist,j))
-                    _distancias.sort()
-        _Classific.append((i,Classificar(_distancias)))
+                    _distance.append((dist,j))
+                    _distance.sort()
+        _Classific.append((i,classifier(_distance)))
     return _Classific
-   
-    
-def Distancia(i,j,tipo):
-	if tipo == 1:
-		return distance.euclidean(i,j)
-	elif tipo == 2:
-		return distance.cityblock(i,j)
-	elif tipo == 3:
-        	return distance.cosine(i,j)  
-		
-def Classificar(_dist):
-	_classes = []
-	for i,j in _dist:
-		_classes.append(j)
-	QtdClasses = collections.Counter(_classes) #Qtd de cada classe
-	return QtdClasses.most_common()[0][0] #Moda
 
 if __name__ == "__main__":
     if len(arg.argv) != 3:
-        print("Argumentos: Treino Teste")
+        print("You need 2 inputs arguments: FileTraining and FileTest")
         exit(1)
     
-    ArqTreino = open(arg.argv[1],'r')
-    ArqTeste = open(arg.argv[2],'r')
+    FileTraining = open(arg.argv[1],'r')
+    FileTest = open(arg.argv[2],'r')
     
-    k = [1,3,5]
+    k = [3]
     
-    treino = instancias(ArqTreino)
-    teste = instancias(ArqTeste)
+    training = ReadArq(FileTraining)
+    test = ReadArq(FileTest)
     
-    ArqTreino.close()
-    ArqTeste.close()
+    FileTraining.close()
+    FileTest.close()
      
-    for j in range(1,4):
+    for j in range(1,2):
         if j == 1:
-            print "-- Euclidean --"
+            print ("*** Distance Euclidian ***")
         elif j == 2:
-            print "-- Manhattan --"
+            print ("*** Distance Cityblock ***")
         elif j == 3:
-            print "-- Cosine --"
+            print ("*** Distance Cosine ***")
         for i in range(len(k)):
             ini = time.clock()
-            x = Knn(treino,teste,k[i],j)
-            y = resultado(x)
+            x = Knn(training,test,k[i],j)
+            print (x)
+            sys.exit()
+            y = result(x)
             perc = y*100/len(x)
             
-            print "K = ",k[i]
-            print "Acertos = {0}%".format(perc)
-            print "Tempo = ",time.clock()-ini
-            print "\t"
-        print "\n"        
+            print ("K = ",k[i])
+            print ("Hits = {0}%".format(perc))
+            #print "Tempo = ",time.clock()-ini
+            print ("\t")
+        print ("\n")        
+
+

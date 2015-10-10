@@ -1,10 +1,10 @@
--------------
-| DESCRICAO |
--------------
+---------------
+| DESCRIPTION |
+---------------
 
-O código é um classificador K-Nearest Neighbor (K-NN). A ideia básica do algoritmo é, ter um conjunto de dados já classificado (denominados conjunto de treino) e ter um conjunto de dados ainda não classificado (denominados conjunto de teste), a cada arquivo de teste é calculado a similaridade entre cada um dos arquivos de treino, esse calculo é feito utilizando alguma medida de similaridade entre os documentos, ou seja, alguma distância. Os k arquivos de treinos mais similares ao arquivo de teste são selecionados (k vizinhos mais próximos), e então o arquivo teste é classificado em determinada classe de acordo com algum critério de agrupamento dos k vizinhos mais próximos. O algortimo foi implementado na linguagem Python.
+The code is a classifier K-Nearest Neighbor (K-NN). The basic idea of the algorithm is, have a set of data already classified (called set of training) and have a set of data not yet classified (called test set), to each test file is calculated the similarity between each one of the files of training, this calculation is done using some measure of similarity between the documents, in other words, some distance away. The k most similar training files to test file are selected (k nearest neighbours), and then the file test is classified in particular class according to some criterion of grouping of the k nearest neighbours. The algorithm was implemented in Python. 
 
-Distâncias utilizadas:
- Distância Manhattan
- Distância Euclidiana
- Distância Cosseno
+Distance used:
+ Distance Cityblock
+ Distance Euclidean
+ Distance Cosine
